@@ -171,7 +171,7 @@ Now we combine the filters with traversal contexts:
 ```java
 // Operation
 Record record = client.operate(null, key,
-    CDTOperation.selectByPath("inventory", SelectFlags.MATCHING_TREE.flag,
+    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE,
         CTX.allChildren(),                                   // dive into all products
         CTX.allChildrenWithFilter(filterOnFeatured),         // only featured products
         CTX.mapKey(Value.get("variants")),                   // navigate to variants
@@ -262,7 +262,7 @@ Exp filterOnKey =
 
 // Operation
 Record record = client.operate(null, key,
-    CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag,
+    CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -322,22 +322,22 @@ Expected output:
 ```
 *   ✅ Only products whose keys start with "10000" are included.
 
-### 2. Alternate return modes with `SelectFlags`
+### 2. Alternate return modes with `SelectFlag`
 
 Sometimes you don't want the full tree but just the keys or values.
 
 **Example**: Return only the SKUs of in-stock variants for featured products that follow a map/dictionary structure.
 
-When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 2: Alternate return modes with SelectFlags"** in your terminal.
+When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 2: Alternate return modes with SelectFlag"** in your terminal.
 
 ```java
 Exp filterOnKey = 
-    Exp.regexCompare("10000.*", 0, Exp.loopVarString(LoopVarPart.MAP_KEY));
+    Exp.regexCompare("10000.*", SelectFlag.MATCHING_TREE, Exp.loopVarString(LoopVarPart.MAP_KEY));
 
 
 // Operation
 Record record = client.operate(null, key,
-    CDTOperation.selectByPath(binName, SelectFlags.MAP_KEYS.flag,
+    CdtOperation.selectByPath(binName, SelectFlag.MAP_KEY,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -379,7 +379,7 @@ Exp filterOnCheapInStock = Exp.and(
         Exp.val(50)));
 
 Record record = client.operate(null, key,
-    CDTOperation.selectByPath("inventory", SelectFlags.MATCHING_TREE.flag,
+    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE,
         CTX.allChildren(),                              // Navigate into all products
         CTX.allChildren(),                              // Navigate deeper into product structure  
         CTX.mapKey(Value.get("variants")),              // Navigate to variants map/list
@@ -432,9 +432,9 @@ Exp incrementExp = Exp.add(
     Exp.val(10));
 
 Expression modifyExpression = Exp.build(
-    CDTExp.modifyByPath(
+    CdtExp.modifyByPath(
         Exp.Type.MAP,
-        SelectFlags.MATCHING_TREE.flag,
+        ModifyFlag.DEFAULT,
         incrementExp,
         Exp.mapBin("inventory"),
         CTX.allChildren(),
@@ -477,7 +477,7 @@ Because the dataset now includes `10000003` with `variants: "no variant"` (a str
 
 ```java
 Record noFailResponse = client.operate(null, key,
-    CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag | SelectFlags.NO_FAIL.flag,
+    CDTOperation.selectByPath(binName, SelectFlag.NO_FAIL,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),
