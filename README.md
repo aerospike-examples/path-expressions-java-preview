@@ -151,7 +151,7 @@ Exp filterOnFeatured = Exp.eq(
    MapExp.getByKey(
        MapReturnType.VALUE, Exp.Type.BOOL,
        Exp.val("featured"),
-       Exp.loopVarMap(LoopVarPart.VALUE)  // loop variable points to each product map
+       Exp.mapLoopVar(LoopVarPart.VALUE)  // loop variable points to each product map
    ),
    Exp.val(true));
 
@@ -160,7 +160,7 @@ Exp filterOnVariantInventory = Exp.gt(
     MapExp.getByKey(
         MapReturnType.VALUE, Exp.Type.INT,
         Exp.val("quantity"),
-        Exp.loopVarMap(LoopVarPart.VALUE)),  // loop variable points to each variant object
+        Exp.mapLoopVar(LoopVarPart.VALUE)),  // loop variable points to each variant object
     Exp.val(0));
 ```
 
@@ -171,7 +171,7 @@ Now we combine the filters with traversal contexts:
 ```java
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE,
+    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE.flag,
         CTX.allChildren(),                                   // dive into all products
         CTX.allChildrenWithFilter(filterOnFeatured),         // only featured products
         CTX.mapKey(Value.get("variants")),                   // navigate to variants
@@ -257,12 +257,12 @@ When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 1: Using 
 
 ```java
 Exp filterOnKey = 
-    Exp.regexCompare("10000.*", 0, Exp.loopVarString(LoopVarPart.MAP_KEY));
+    Exp.regexCompare("10000.*", 0, Exp.stringLoopVar(LoopVarPart.MAP_KEY));
 
 
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE,
+    CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -332,12 +332,12 @@ When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 2: Altern
 
 ```java
 Exp filterOnKey = 
-    Exp.regexCompare("10000.*", SelectFlag.MATCHING_TREE, Exp.loopVarString(LoopVarPart.MAP_KEY));
+    Exp.regexCompare("10000.*", SelectFlag.MATCHING_TREE.flag, Exp.stringLoopVar(LoopVarPart.MAP_KEY));
 
 
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, SelectFlag.MAP_KEY,
+    CdtOperation.selectByPath(binName, SelectFlag.MAP_KEY.flag,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -370,16 +370,16 @@ Exp filterOnCheapInStock = Exp.and(
     Exp.gt(
         MapExp.getByKey(MapReturnType.VALUE, Exp.Type.INT,
             Exp.val("quantity"),
-            Exp.loopVarMap(LoopVarPart.VALUE)),
+            Exp.mapLoopVar(LoopVarPart.VALUE)),
         Exp.val(0)),
     Exp.lt(
         MapExp.getByKey(MapReturnType.VALUE, Exp.Type.INT,
             Exp.val("price"),
-            Exp.loopVarMap(LoopVarPart.VALUE)),
+            Exp.mapLoopVar(LoopVarPart.VALUE)),
         Exp.val(50)));
 
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE,
+    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE.flag,
         CTX.allChildren(),                              // Navigate into all products
         CTX.allChildren(),                              // Navigate deeper into product structure  
         CTX.mapKey(Value.get("variants")),              // Navigate to variants map/list
@@ -428,13 +428,13 @@ String updatedBin = "updatedBinName";
 Exp incrementExp = Exp.add(
     MapExp.getByKey(MapReturnType.VALUE, Type.INT,
         Exp.val("quantity"),
-        Exp.loopVarMap(LoopVarPart.VALUE)),
+        Exp.mapLoopVar(LoopVarPart.VALUE)),
     Exp.val(10));
 
 Expression modifyExpression = Exp.build(
     CdtExp.modifyByPath(
         Exp.Type.MAP,
-        ModifyFlag.DEFAULT,
+        ModifyFlag.DEFAULT.flag,
         incrementExp,
         Exp.mapBin("inventory"),
         CTX.allChildren(),
@@ -477,7 +477,7 @@ Because the dataset now includes `10000003` with `variants: "no variant"` (a str
 
 ```java
 Record noFailResponse = client.operate(null, key,
-    CDTOperation.selectByPath(binName, SelectFlag.NO_FAIL,
+    CDTOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag | SelectFlag.NO_FAIL.flag,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),

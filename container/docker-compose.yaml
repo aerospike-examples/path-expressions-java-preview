@@ -4,9 +4,9 @@ services:
     #    image: aerospike-example
     image: artifact.aerospike.io/database-container-preview-public-local/aerospike-server-enterprise:8.1.1.0-start-48
     ports:
-      - "8888:8888"
-      - "3000:3000"
-      - "4000:4000"
+      - 8888:8888
+      - 3000:3000
+      - 4000:4000
     volumes:
       - ./data:/data
     restart: unless-stopped
