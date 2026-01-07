@@ -15,10 +15,11 @@ import com.aerospike.client.Record;
 import com.aerospike.client.Value;
 import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cdt.CdtOperation;
+import com.aerospike.client.cdt.MapOperation;
+import com.aerospike.client.cdt.MapPolicy;
 import com.aerospike.client.cdt.MapReturnType;
 import com.aerospike.client.exp.CdtExp;
 import com.aerospike.client.exp.Exp;
-import com.aerospike.client.exp.Exp.Type;
 import com.aerospike.client.exp.ExpOperation;
 import com.aerospike.client.exp.ExpWriteFlags;
 import com.aerospike.client.exp.Expression;
@@ -161,11 +162,17 @@ public static void main(String[] args) throws IOException {
     String updatedBin = "updatedBinName";
 
     // Increment quantity by 10
-    Exp incrementExp = Exp.add(
-        MapExp.getByKey(MapReturnType.VALUE, Type.INT,
-            Exp.val("quantity"),
-            Exp.mapLoopVar(LoopVarPart.VALUE)),
-        Exp.val(10));
+    Exp incrementExp = MapExp.put(
+        MapPolicy.Default,
+        Exp.val("quantity"),  // key to update
+        Exp.add(  // new value: current quantity + 10
+            MapExp.getByKey(MapReturnType.VALUE, Exp.Type.INT,
+                Exp.val("quantity"),
+                Exp.mapLoopVar(LoopVarPart.VALUE)),
+            Exp.val(10)
+        ),
+        Exp.mapLoopVar(LoopVarPart.VALUE)
+    );
 
     Expression modifyExpression = Exp.build(
         CdtExp.modifyByPath(
@@ -197,12 +204,19 @@ public static void main(String[] args) throws IOException {
     badRecordDetails.put("featured", true);
     badRecordDetails.put("name", "Hooded Sweatshirt");
     badRecordDetails.put("description", "Warm fleece hoodie with front pocket and adjustable hood.");
-    badRecordDetails.put("variants", "no variant");
+    badRecordDetails.put("variants", Map.of("quantity","10"));
 
-    inventory.put("10000003", badRecordDetails);
     WritePolicy writePolicy = new WritePolicy();
-    writePolicy.recordExistsAction = RecordExistsAction.UPDATE_ONLY;
-    client.put(null, key, new Bin(binName, inventory));
+    writePolicy.recordExistsAction = RecordExistsAction.UPDATE;
+    client.operate(writePolicy, key,
+        MapOperation.put(
+            MapPolicy.Default,
+            binName,
+            Value.get("10000003"),
+            Value.get(badRecordDetails),
+            CTX.mapKey(Value.get("inventory"))
+        )
+    );
 
     try {
       client.operate(null, key,
