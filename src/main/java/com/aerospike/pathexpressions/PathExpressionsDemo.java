@@ -155,9 +155,48 @@ public static void main(String[] args) throws IOException {
 
     System.out.println("Cheap in-stock items (across all products): " + Debug.print(cheapInStock.getMap(binName)));
 
-    // Modify
     System.out.println("\n" + "=".repeat(80));
     System.out.println("ADVANCED EXAMPLE 4: Server-side modification (incrementing quantities)");
+    System.out.println("=".repeat(80));
+
+    Expression incrementQuantity = Exp.build(
+        MapExp.put(
+            MapPolicy.Default,
+            Exp.val("quantity"),  // key to update
+            Exp.add(              // new value: current quantity + 10
+                MapExp.getByKey(MapReturnType.VALUE, Exp.Type.INT,
+                    Exp.val("quantity"),
+                    Exp.mapLoopVar(LoopVarPart.VALUE)),
+                Exp.val(10)
+            ),
+            Exp.mapLoopVar(LoopVarPart.VALUE)  // map to update
+        )
+    );
+
+    client.operate(null, key,
+        CdtOperation.modifyByPath(binName, SelectFlag.MATCHING_TREE.flag, incrementQuantity,
+            CTX.allChildren(),
+            CTX.allChildrenWithFilter(filterOnFeatured),
+            CTX.mapKey(Value.get("variants")),
+            CTX.allChildrenWithFilter(filterOnVariantInventory)
+        )
+    );
+
+    // Read back the data and print in JSON format
+    Record modifyRecord = client.get(null, key);
+    if (modifyRecord != null) {
+      Object inventoryData = modifyRecord.getValue(binName);
+      String jsonOutput = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(inventoryData);
+      System.out.println("\n" + "=".repeat(80));
+      System.out.println("Updated records (quantities incremented by 10): ");
+      System.out.println("=".repeat(80));
+      System.out.println(jsonOutput);
+    } else {
+        throw new RuntimeException("No record found");
+    }
+
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("ADVANCED EXAMPLE 5: Server-side modification alternative approach (incrementing quantities)");
     System.out.println("=".repeat(80));
     String updatedBin = "updatedBinName";
 
@@ -195,7 +234,7 @@ public static void main(String[] args) throws IOException {
 
     // NO_FAIL
     System.out.println("\n" + "=".repeat(80));
-    System.out.println("ADVANCED EXAMPLE 5: NO_FAIL flag to tolerate malformed data");
+    System.out.println("ADVANCED EXAMPLE 6: NO_FAIL flag to tolerate malformed data");
     System.out.println("=".repeat(80));
     // Append bad record
     Map<String, Object> badRecordDetails = new HashMap<>();
