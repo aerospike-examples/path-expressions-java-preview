@@ -413,7 +413,7 @@ Expected Output:
 *   ❌ Item `50000006` (Laptop Pro 14): Variant 3001 excluded (quantity=0)
 *   ❌ Item `50000009` (Smart TV): Both variants excluded (price > 50)
 
-### 4. Modify nested elements with `modifyCdt`
+### 4. Modify nested elements with `modifyByPath`
 
 You can update selected values in place.
 
@@ -422,35 +422,28 @@ You can update selected values in place.
 When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 4: Server-side modification (incrementing quantities)"** in your terminal.
 
 ```java
-String updatedBin = "updatedBinName";
+Expression incrementQuantity = Exp.build(
+    MapExp.put(
+        MapPolicy.Default,
+        Exp.val("quantity"),  // key to update
+        Exp.add(              // new value: current quantity + 10
+            MapExp.getByKey(MapReturnType.VALUE, Exp.Type.INT,
+                Exp.val("quantity"),
+                Exp.mapLoopVar(LoopVarPart.VALUE)),
+            Exp.val(10)
+        ),
+        Exp.mapLoopVar(LoopVarPart.VALUE)  // map to update
+    )
+);
 
-// Increment quantity by 10
-Exp incrementExp = Exp.add(
-    MapExp.getByKey(MapReturnType.VALUE, Type.INT,
-        Exp.val("quantity"),
-        Exp.mapLoopVar(LoopVarPart.VALUE)),
-    Exp.val(10));
-
-Expression modifyExpression = Exp.build(
-    CdtExp.modifyByPath(
-        Exp.Type.MAP,
-        Exp.MODIFY_DEFAULT,
-        incrementExp,
-        Exp.mapBin(binName),
+client.operate(null, key,
+    CdtOperation.modifyByPath(binName, Exp.SELECT_MATCHING_TREE, incrementQuantity,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),
         CTX.allChildrenWithFilter(filterOnVariantInventory)
     )
 );
-
-// Write the modified map to a new bin
-client.operate(null, key,
-    ExpOperation.write(updatedBin, modifyExpression, ExpWriteFlags.DEFAULT));
-
-// Read back the updated record
-Record updatedRecord = client.get(null, key);
-System.out.println("Updated records: " + updatedRecord.getMap(updatedBin));
 ```
 
 Expected output (diff excerpt):
@@ -475,7 +468,7 @@ Now let's assume we add this item to the inventory bin (the demo does this autom
 }
 ```
 
-Because the dataset now includes `10000003` with `variants: "no variant"` (a string), any traversal that reaches variants and then tries to treat it like a Map/List will hit a type mismatch and error unless `SelectFlags.NO_FAIL` is set.
+Because the dataset now includes `10000003` with `variants: "no variant"` (a string), any traversal that reaches variants and then tries to treat it like a Map/List will hit a type mismatch and error unless `Exp.SELECT_NO_FAIL` is set.
 
 ```java
 Record noFailResponse = client.operate(null, key,
@@ -522,7 +515,7 @@ Same as the corresponding non-NO_FAIL query, minus any contribution from malform
 
 **Q: What kind of exception will I actually see on the client if I don’t use `NO_FAIL`? Is it recoverable or will the whole operation abort?**
 
-**A**: Without `SelectFlags.NO_FAIL`, if the server encounters a type mismatch (e.g., it expects a Map or List but finds a String), the entire path expression operation fails. The operation does not return partial results.
+**A**: Without `Exp.SELECT_NO_FAIL`, if the server encounters a type mismatch (e.g., it expects a Map or List but finds a String), the entire path expression operation fails. The operation does not return partial results.
 
 **Q: How do I return only certain pieces of data, like just the variant IDs?**
 
