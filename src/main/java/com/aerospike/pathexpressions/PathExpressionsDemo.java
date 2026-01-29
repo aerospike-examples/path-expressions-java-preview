@@ -25,8 +25,6 @@ import com.aerospike.client.exp.ExpWriteFlags;
 import com.aerospike.client.exp.Expression;
 import com.aerospike.client.exp.LoopVarPart;
 import com.aerospike.client.exp.MapExp;
-import com.aerospike.client.operation.ModifyFlag;
-import com.aerospike.client.operation.SelectFlag;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
@@ -94,7 +92,7 @@ public static void main(String[] args) throws IOException {
 
     // Operation
     Record readResult = client.operate(null, key,
-        CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag,
+        CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),
@@ -113,7 +111,7 @@ public static void main(String[] args) throws IOException {
 
     // Operation
     Record regexMatchingTree = client.operate(null, key,
-        CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag,
+        CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
@@ -121,10 +119,10 @@ public static void main(String[] args) throws IOException {
 
     // Operation
     System.out.println("\n" + "=".repeat(80));
-    System.out.println("ADVANCED EXAMPLE 2: Alternate return modes with SelectFlags");
+    System.out.println("ADVANCED EXAMPLE 2: Alternate return modes with Exp.SELECT_");
     System.out.println("=".repeat(80));
     Record regexList = client.operate(null, key,
-        CdtOperation.selectByPath(binName, SelectFlag.MAP_KEY.flag,
+        CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
@@ -147,7 +145,7 @@ public static void main(String[] args) throws IOException {
             Exp.val(50)));
 
     Record cheapInStock = client.operate(null, key,
-        CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag,
+        CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
             CTX.allChildren(),
             CTX.allChildren(),
             CTX.mapKey(Value.get("variants")),
@@ -174,7 +172,7 @@ public static void main(String[] args) throws IOException {
     );
 
     client.operate(null, key,
-        CdtOperation.modifyByPath(binName, SelectFlag.MATCHING_TREE.flag, incrementQuantity,
+        CdtOperation.modifyByPath(binName, Exp.SELECT_MATCHING_TREE, incrementQuantity,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),
@@ -216,7 +214,7 @@ public static void main(String[] args) throws IOException {
     Expression modifyExpression = Exp.build(
         CdtExp.modifyByPath(
             Exp.Type.MAP,
-            ModifyFlag.DEFAULT.flag,
+            Exp.MODIFY_DEFAULT,
             incrementExp,
             Exp.mapBin(binName),
             CTX.allChildren(),
@@ -259,7 +257,7 @@ public static void main(String[] args) throws IOException {
 
     try {
       client.operate(null, key,
-          CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag,
+          CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
               CTX.allChildren(),
               CTX.allChildrenWithFilter(filterOnFeatured),
               CTX.mapKey(Value.get("variants")),
@@ -269,7 +267,7 @@ public static void main(String[] args) throws IOException {
     }
 
     Record noFailResponse = client.operate(null, key,
-        CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag | SelectFlag.NO_FAIL.flag,
+        CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE | Exp.SELECT_NO_FAIL,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),
