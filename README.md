@@ -171,11 +171,11 @@ Now we combine the filters with traversal contexts:
 ```java
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE.flag,
-        CTX.allChildren(),                                   // dive into all products
-        CTX.allChildrenWithFilter(filterOnFeatured),         // only featured products
-        CTX.mapKey(Value.get("variants")),                   // navigate to variants
-        CTX.allChildrenWithFilter(filterOnVariantInventory)  // only in-stock variants
+    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
+        CTX.allChildren(),                                     // dive into all products
+        CTX.allChildrenWithFilter(filterOnFeatured),           // only featured products
+        CTX.mapKey(Value.get("variants")),                     // navigate to variants
+        CTX.allChildrenWithFilter(filterOnVariantInventory)    // only in-stock variants
     )
 );
 ```
@@ -262,7 +262,7 @@ Exp filterOnKey =
 
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag,
+    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -337,7 +337,7 @@ Exp filterOnKey =
 
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, SelectFlag.MAP_KEY.flag,
+    CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -379,9 +379,9 @@ Exp filterOnCheapInStock = Exp.and(
         Exp.val(50)));
 
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath("inventory", SelectFlag.MATCHING_TREE.flag,
+    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
         CTX.allChildren(),                              // Navigate into all products
-        CTX.allChildren(),                              // Navigate deeper into product structure  
+        CTX.allChildren(),                              // Navigate deeper into product structure
         CTX.mapKey(Value.get("variants")),              // Navigate to variants map/list
         CTX.allChildrenWithFilter(filterOnCheapInStock) // Filter variants by price and quantity
     )
@@ -434,13 +434,15 @@ Exp incrementExp = Exp.add(
 Expression modifyExpression = Exp.build(
     CdtExp.modifyByPath(
         Exp.Type.MAP,
-        ModifyFlag.DEFAULT.flag,
+        Exp.MODIFY_DEFAULT,
         incrementExp,
-        Exp.mapBin("inventory"),
+        Exp.mapBin(binName),
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),
-        CTX.allChildrenWithFilter(filterOnVariantInventory)));
+        CTX.allChildrenWithFilter(filterOnVariantInventory)
+    )
+);
 
 // Write the modified map to a new bin
 client.operate(null, key,
@@ -477,7 +479,7 @@ Because the dataset now includes `10000003` with `variants: "no variant"` (a str
 
 ```java
 Record noFailResponse = client.operate(null, key,
-    CDTOperation.selectByPath(binName, SelectFlag.MATCHING_TREE.flag | SelectFlag.NO_FAIL.flag,
+    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE | Exp.SELECT_NO_FAIL,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),
