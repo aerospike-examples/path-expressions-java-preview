@@ -172,7 +172,7 @@ public static void main(String[] args) throws IOException {
     );
 
     client.operate(null, key,
-        CdtOperation.modifyByPath(binName, Exp.SELECT_MATCHING_TREE, incrementQuantity,
+        CdtOperation.modifyByPath(binName, Exp.MODIFY_DEFAULT, incrementQuantity,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),
