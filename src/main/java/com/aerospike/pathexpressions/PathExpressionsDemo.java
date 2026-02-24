@@ -122,7 +122,7 @@ public static void main(String[] args) throws IOException {
     System.out.println("ADVANCED EXAMPLE 2: Alternate return modes with Exp.SELECT_");
     System.out.println("=".repeat(80));
     Record regexList = client.operate(null, key,
-        CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY,
+        CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY | Exp.SELECT_NO_FAIL,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),
