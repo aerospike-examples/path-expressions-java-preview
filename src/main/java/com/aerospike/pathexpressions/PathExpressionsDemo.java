@@ -278,6 +278,11 @@ public static void main(String[] args) throws IOException {
     System.out.println("✅ Operation succeeded with NO_FAIL flag:");
     System.out.println(Debug.print(noFailResponse.getValue(binName)));
 
+    // Remove malformed data and return record to initial state
+    WritePolicy policy = new WritePolicy();
+    policy.recordExistsAction = RecordExistsAction.UPDATE_ONLY;
+    client.put(updatePolicy, key, new Bin(binName, inventory));
+    
     client.close();
   }
 }
