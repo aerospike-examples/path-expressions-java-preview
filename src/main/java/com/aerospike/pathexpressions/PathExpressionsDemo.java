@@ -281,7 +281,7 @@ public static void main(String[] args) throws IOException {
     // Remove malformed data and return record to initial state
     WritePolicy policy = new WritePolicy();
     policy.recordExistsAction = RecordExistsAction.REPLACE;
-    client.put(updatePolicy, key, new Bin(binName, inventory));
+    client.put(policy, key, new Bin(binName, inventory));
     
     client.close();
   }
