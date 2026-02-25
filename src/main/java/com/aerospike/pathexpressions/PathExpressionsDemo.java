@@ -54,7 +54,7 @@ public static void main(String[] args) throws IOException {
     AerospikeClient client = new AerospikeClient(clientPolicy, new Host("localhost", 3000));
     // Truncate the inventory set
     client.truncate(null, "test", "products", null);
-    String binName = "inventory";
+    String binName = "catalog";
     // insert the inventory
     Key key = new Key("test", "products", "catalog");
     client.put(null, key, new Bin(binName, inventory));
@@ -122,9 +122,11 @@ public static void main(String[] args) throws IOException {
     System.out.println("ADVANCED EXAMPLE 2: Alternate return modes with Exp.SELECT_");
     System.out.println("=".repeat(80));
     Record regexList = client.operate(null, key,
-        CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY,
+        CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY | Exp.SELECT_NO_FAIL,
             CTX.allChildren(),
-            CTX.allChildrenWithFilter(filterOnKey)));
+            CTX.allChildrenWithFilter(filterOnFeatured),
+            CTX.mapKey(Value.get("variants")),
+            CTX.allChildrenWithFilter(filterOnVariantInventory)));
 
     System.out.println("Result (MAP_KEYS only): " + Debug.print(regexList.getList(binName)));
 
@@ -147,7 +149,7 @@ public static void main(String[] args) throws IOException {
     Record cheapInStock = client.operate(null, key,
         CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
             CTX.allChildren(),
-            CTX.allChildren(),
+            CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),
             CTX.allChildrenWithFilter(filterOnCheapInStock)));
 
@@ -276,6 +278,11 @@ public static void main(String[] args) throws IOException {
     System.out.println("✅ Operation succeeded with NO_FAIL flag:");
     System.out.println(Debug.print(noFailResponse.getValue(binName)));
 
+    // Remove malformed data and return record to initial state
+    WritePolicy policy = new WritePolicy();
+    policy.recordExistsAction = RecordExistsAction.REPLACE;
+    client.put(policy, key, new Bin(binName, inventory));
+    
     client.close();
   }
 }

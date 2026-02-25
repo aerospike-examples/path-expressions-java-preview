@@ -127,15 +127,16 @@ We’ll filter at two levels of the data:
 When traversing with Path Expressions, the server evaluates filters at different depths. Here’s the stack we’re walking for this example:
 
 ```
-inventory (bin)
-  └── product (map entry, keyed by productId)
-        ├── category
-        ├── featured   <-- product-level filter
-        ├── name
-        ├── description
-        └── variants
-              ├── { "2001": {...}, "2002": {...} }   <-- map-backed variants
-              └── [ {sku:3007,...}, {sku:3008,...} ] <-- list-backed variants
+catalog (bin)
+ └── inventory (map entry)
+      └── product (map entry, keyed by productId)
+           ├── category
+           ├── featured   <-- product-level filter
+           ├── name
+           ├── description
+           └── variants
+                ├── { "2001": {...}, "2002": {...} }   <-- map-backed variants
+                └── [ {sku:3007,...}, {sku:3008,...} ] <-- list-backed variants
                         ^ variant-level filter
 ```
 At product level, we filter by the `featured` field inside each product map.
@@ -337,9 +338,11 @@ Exp filterOnKey =
 
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY,
+    CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY | Exp.SELECT_NO_FAIL,
         CTX.allChildren(),
-        CTX.allChildrenWithFilter(filterOnKey)
+        CTX.allChildrenWithFilter(filterOnKey),
+        CTX.mapKey(Value.get("variants")),
+        CTX.allChildrenWithFilter(filterOnVariantInventory)
     )
 );
 
@@ -359,11 +362,11 @@ Expected Output:
 
 Filters can be chained with `AND` / `OR`.
 
-**Example**: Select variants that are in stock and have price < 50 (across all products).
+**Example**: Select variants that are in stock, have price < 50 (across all products), and are featured.
 
 **Note**: Unlike the previous examples focused on featured products for homepage promotion, this example demonstrates filtering at the variant level only, without a product-level filter. This pattern is useful for different scenarios like finding clearance items, budget options, or inventory that meets specific criteria across your entire catalog.
 
-When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 3: Combining multiple filters (price < 50 AND quantity > 0)"** in your terminal.
+When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 3: Combining multiple filters (price < 50 AND quantity > 0 AND featured = true)"** in your terminal.
 
 ```java
 Exp filterOnCheapInStock = Exp.and(
@@ -381,7 +384,7 @@ Exp filterOnCheapInStock = Exp.and(
 Record record = client.operate(null, key,
     CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
         CTX.allChildren(),                              // Navigate into all products
-        CTX.allChildren(),                              // Navigate deeper into product structure
+        CTX.allChildrenWithFilter(filterOnFeatured),    // Navigate deeper into the featured product structure
         CTX.mapKey(Value.get("variants")),              // Navigate to variants map/list
         CTX.allChildrenWithFilter(filterOnCheapInStock) // Filter variants by price and quantity
     )
@@ -485,7 +488,7 @@ Record noFailResponse = client.operate(null, key,
 
 With `NO_FAIL`, `malformed_product` excluded silently because variants was "no variant".
 
-When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 5: NO_FAIL flag to tolerate malformed data"** in your terminal. You'll first see **"❌ Operation failed as expected (malformed data without NO_FAIL flag)"** showing the operation fails without NO_FAIL, then **"✅ Operation succeeded with NO_FAIL flag:"** showing the successful operation with the flag.
+When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 6: NO_FAIL flag to tolerate malformed data"** in your terminal. You'll first see **"❌ Operation failed as expected (malformed data without NO_FAIL flag)"** showing the operation fails without NO_FAIL, then **"✅ Operation succeeded with NO_FAIL flag:"** showing the successful operation with the flag.
 
 Expected output:
 
