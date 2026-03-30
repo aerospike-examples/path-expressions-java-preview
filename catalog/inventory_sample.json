@@ -1,0 +1,78 @@
+{
+  "inventory": {
+    "10000001": {
+      "category": "clothing",
+      "featured": true,
+      "name": "Classic T-Shirt",
+      "description": "A lightweight cotton T-shirt perfect for everyday wear.",
+      "variants": {
+        "2001": {
+          "size": "S",
+          "price": 25,
+          "quantity": 100
+        },
+        "2002": {
+          "size": "M",
+          "price": 25,
+          "quantity": 0
+        },
+        "2003": {
+          "size": "L",
+          "price": 27,
+          "quantity": 50
+        }
+      }
+    },
+    "10000002": {
+      "category": "clothing",
+      "featured": false,
+      "name": "Casual Polo Shirt",
+      "description": "A soft polo shirt suitable for work or leisure.",
+      "variants": {
+        "2004": {
+          "size": "M",
+          "price": 30,
+          "quantity": 20
+        },
+        "2005": {
+          "size": "XL",
+          "price": 32,
+          "quantity": 10
+        }
+      }
+    },
+    "50000006": {
+      "category": "electronics",
+      "featured": true,
+      "name": "Laptop Pro 14",
+      "description": "High-performance laptop designed for professionals.",
+      "variants": {
+        "3001": {
+          "spec": "8GB RAM",
+          "price": 599,
+          "quantity": 0
+        }
+      }
+    },
+    "50000009": {
+      "category": "electronics",
+      "featured": true,
+      "name": "Smart TV",
+      "description": "Ultra HD smart television with built-in streaming apps.",
+      "variants": [
+        {
+          "sku": 3007,
+          "spec": "1080p",
+          "price": 199,
+          "quantity": 60
+        },
+        {
+          "sku": 3008,
+          "spec": "4K",
+          "price": 399,
+          "quantity": 30
+        }
+      ]
+    }
+  }
+}
