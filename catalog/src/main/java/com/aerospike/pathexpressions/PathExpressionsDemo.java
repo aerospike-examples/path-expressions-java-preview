@@ -69,6 +69,7 @@ public class PathExpressionsDemo {
             runAdvanced4(client, key);
             runAdvanced5(client, key);
             runAdvanced6(client, key, inventory);
+            runAdvanced7(client, key, inventory);
 
             client.delete(null, key);
         }
@@ -275,6 +276,41 @@ public class PathExpressionsDemo {
                 CTX.allChildrenWithFilter(filterOnVariantInventory)));
 
         System.out.println("Operation succeeded with NO_FAIL flag:");
+        System.out.println(MAPPER.writeValueAsString(record.getValue("catalog")));
+
+        WritePolicy replacePolicy = new WritePolicy();
+        replacePolicy.recordExistsAction = RecordExistsAction.REPLACE;
+        client.put(replacePolicy, key, new Bin("catalog", inventory));
+    }
+
+    /**
+     * Advanced 7: Remove all size "M" variants using modifyByPath + Exp.removeResult().
+     * The path selects matching variants across all products; removeResult() deletes them.
+     * Uses NO_FAIL to skip products that lack a "size" key or use list-backed variants.
+     */
+    static void runAdvanced7(IAerospikeClient client, Key key, Map<String, Object> inventory) throws Exception {
+        Exp filterOnSizeM = Exp.eq(
+            MapExp.getByKey(MapReturnType.VALUE, Exp.Type.STRING,
+                Exp.val("size"), Exp.mapLoopVar(LoopVarPart.VALUE)),
+            Exp.val("M"));
+
+        Expression removeExp = Exp.build(Exp.removeResult());
+
+        client.operate(null, key,
+            CdtOperation.modifyByPath("catalog", ModifyFlags.NO_FAIL, removeExp,
+                CTX.allChildren(),
+                CTX.allChildren(),
+                CTX.mapKey(Value.get("variants")),
+                CTX.allChildrenWithFilter(filterOnSizeM)
+            )
+        );
+
+        Record record = client.get(null, key);
+        if (record == null) {
+            throw new RuntimeException("No record found after modify");
+        }
+
+        printHeader("ADVANCED EXAMPLE 7: Remove all size M variants");
         System.out.println(MAPPER.writeValueAsString(record.getValue("catalog")));
 
         WritePolicy replacePolicy = new WritePolicy();

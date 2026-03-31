@@ -9,6 +9,7 @@ Java code examples for the [Path Expressions](https://docs.aerospike.com/develop
 | `bookstore/` | Bookstore data model with nested queries | [Overview](https://docs.aerospike.com/develop/expressions/path/) |
 | `catalog/` | E-commerce catalog: filtering, select flags, modification | [Quickstart](https://docs.aerospike.com/develop/expressions/path/quickstart/) and [Advanced usage](https://docs.aerospike.com/develop/expressions/path/advanced/) |
 | `booking/` | Booking data model: IN-list filtering with 8.1.2 CTX enhancements | [Performance](https://docs.aerospike.com/develop/expressions/path/performance/) |
+| `misc/` | Miscellaneous code examples for path expression use, such as chaining `mapKeysIn`/`andFilter` pairs and nesting experiments | [FAQ](https://docs.aerospike.com/develop/expressions/path/faq/) |
 
 Each folder is a self-contained Maven project.
 
@@ -34,4 +35,13 @@ Each folder is a self-contained Maven project.
    mvn compile exec:java
    ```
 
-   Replace `catalog` with `bookstore` (or any other folder) to run a different example.
+   Replace `catalog` with `bookstore` or `booking` to run their example.
+
+   The `misc/` folder contains multiple examples. By default `mvn compile exec:java`
+   runs `NestingExamplesTest`. To run a different class, pass `-Dmain=ClassName`:
+
+   ```bash
+   cd misc
+   mvn compile exec:java                              # runs NestingExamplesTest
+   mvn compile exec:java -Dmain=ChainedMapKeysInExp   # runs ChainedMapKeysInExp
+   ```
