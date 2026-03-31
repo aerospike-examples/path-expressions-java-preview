@@ -29,7 +29,7 @@ import com.aerospike.client.exp.MapExp;
 /**
  * Verify that all three path expression implementations return the same result.
  *
- * Data is parsed from an embedded minified JSON string (see booking.json for readable version)
+ * Data is parsed from an embedded JSON string (see also booking.json)
  * and stored in a single map bin "doc".
  *
  * Data structure:
@@ -51,8 +51,35 @@ public class PathExpBooking {
     static final String HOST = "127.0.0.1";
     static final int PORT = 3000;
     static final boolean USE_SERVICES_ALTERNATE = true;
-    // Minified booking.json (see file for readable version)
-    static final String JSON_DATA = "{\"10001\":{\"rates\":[{\"Id\":1,\"a\":2,\"beta\":3.0,\"c\":true,\"d\":\"data\"},{\"Id\":2,\"a\":2,\"beta\":0.0,\"c\":true,\"d\":\"data blob\"}],\"e\":4,\"isDeleted\":false,\"time\":1795647328},\"10002\":{\"rates\":[{\"Id\":1,\"a\":2,\"beta\":3.0,\"c\":true,\"d\":\"data blob\"}],\"e\":4,\"isDeleted\":true,\"time\":1795647328},\"10003\":{\"rates\":[{\"Id\":1,\"a\":2,\"beta\":3.0,\"c\":true,\"d\":\"data blob\"}],\"e\":4,\"isDeleted\":false,\"time\":1764140184}}";
+    static final String JSON_DATA = """
+{
+  "10001": {
+    "rates": [
+      {"Id": 1, "a": 2, "beta": 3.0, "c": true, "d": "data"},
+      {"Id": 2, "a": 2, "beta": 0.0, "c": true, "d": "data blob"}
+    ],
+    "e": 4,
+    "isDeleted": false,
+    "time": 1795647328
+  },
+  "10002": {
+    "rates": [
+      {"Id": 1, "a": 2, "beta": 3.0, "c": true, "d": "data blob"}
+    ],
+    "e": 4,
+    "isDeleted": true,
+    "time": 1795647328
+  },
+  "10003": {
+    "rates": [
+      {"Id": 1, "a": 2, "beta": 3.0, "c": true, "d": "data blob"}
+    ],
+    "e": 4,
+    "isDeleted": false,
+    "time": 1764140184
+  }
+}
+""";
 
     static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -65,7 +92,7 @@ public class PathExpBooking {
             Key key = new Key("test", "pathexp", "ctrip1");
             setupData(client, key);
 
-            List<Long> roomIds = Arrays.asList(10001L, 10003L);
+            List<Long> roomIds = List.of(10001L, 10003L);
             long timeThreshold = 1780000000L;
 
             // exp1: time > threshold

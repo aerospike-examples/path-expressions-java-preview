@@ -22,7 +22,7 @@ import com.aerospike.client.exp.MapExp;
 
 /**
  * Demonstrate Aerospike path expressions using the classic JSONPath bookstore dataset.
- * Data is parsed from an embedded minified JSON string (see bookstore.json for readable version)
+ * Data is parsed from an embedded JSON string (see also bookstore.json)
  * and stored in a single map bin "bookstore".
  *
  * Data structure:
@@ -37,8 +37,20 @@ public class BookstorePathExp {
     static final String HOST = "127.0.0.1";
     static final int PORT = 3000;
     static final boolean USE_SERVICES_ALTERNATE = true;
-    // Minified bookstore.json (see file for readable version)
-    static final String JSON_DATA = "{\"store\":{\"book\":[{\"category\":\"reference\",\"author\":\"Nigel Rees\",\"title\":\"Sayings of the Century\",\"price\":8.95},{\"category\":\"fiction\",\"author\":\"Evelyn Waugh\",\"title\":\"Sword of Honour\",\"price\":12.99},{\"category\":\"fiction\",\"author\":\"Herman Melville\",\"title\":\"Moby Dick\",\"isbn\":\"0-553-21311-3\",\"price\":8.99},{\"category\":\"fiction\",\"author\":\"J. R. R. Tolkien\",\"title\":\"The Lord of the Rings\",\"isbn\":\"0-395-19395-8\",\"price\":22.99}],\"bicycle\":{\"color\":\"red\",\"price\":19.95}},\"expensive\":10}";
+    static final String JSON_DATA = """
+{
+  "store": {
+    "book": [
+      {"category": "reference", "author": "Nigel Rees", "title": "Sayings of the Century", "price": 8.95},
+      {"category": "fiction", "author": "Evelyn Waugh", "title": "Sword of Honour", "price": 12.99},
+      {"category": "fiction", "author": "Herman Melville", "title": "Moby Dick", "isbn": "0-553-21311-3", "price": 8.99},
+      {"category": "fiction", "author": "J. R. R. Tolkien", "title": "The Lord of the Rings", "isbn": "0-395-19395-8", "price": 22.99}
+    ],
+    "bicycle": {"color": "red", "price": 19.95}
+  },
+  "expensive": 10
+}
+""";
 
     static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 

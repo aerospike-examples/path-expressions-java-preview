@@ -41,8 +41,21 @@ public class ChainedMapKeysInExp {
     static final String HOST = "127.0.0.1";
     static final int PORT = 3000;
     static final boolean USE_SERVICES_ALTERNATE = true;
-    // Minified chained.json (see file for readable version)
-    static final String JSON_DATA = "{\"100\":{\"beta\":2.0,\"1001\":{\"a\":1,\"b\":2,\"yes\":1},\"1002\":{\"z\":26},\"1003\":{\"f\":6}},\"200\":{\"beta\":3.0,\"2001\":{\"d\":4,\"e\":5,\"yes\":1},\"2002\":{\"y\":25}}}";
+    static final String JSON_DATA = """
+{
+  "100": {
+    "beta": 2.0,
+    "1001": {"a": 1, "b": 2, "yes": 1},
+    "1002": {"z": 26},
+    "1003": {"f": 6}
+  },
+  "200": {
+    "beta": 3.0,
+    "2001": {"d": 4, "e": 5, "yes": 1},
+    "2002": {"y": 25}
+  }
+}
+""";
 
     static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
