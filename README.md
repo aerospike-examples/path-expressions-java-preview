@@ -172,7 +172,7 @@ Now we combine the filters with traversal contexts:
 ```java
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
+    CdtOperation.selectByPath(binName, SelectFlags.MATCHING_TREE,
         CTX.allChildren(),                                     // dive into all products
         CTX.allChildrenWithFilter(filterOnFeatured),           // only featured products
         CTX.mapKey(Value.get("variants")),                     // navigate to variants
@@ -258,12 +258,12 @@ When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 1: Using 
 
 ```java
 Exp filterOnKey = 
-    Exp.regexCompare("10000.*", 0, Exp.stringLoopVar(LoopVarPart.MAP_KEY));
+    Exp.regexCompare("10000.*", RegexFlag.NONE, Exp.stringLoopVar(LoopVarPart.MAP_KEY));
 
 
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
+    CdtOperation.selectByPath(binName, SelectFlags.MATCHING_TREE,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -332,13 +332,13 @@ Sometimes you don't want the full tree but just the keys or values.
 When you run the demo, look for the output labeled **"ADVANCED EXAMPLE 2: Alternate return modes with SelectFlag"** in your terminal.
 
 ```java
-Exp filterOnKey = 
-    Exp.regexCompare("10000.*", SelectFlag.MATCHING_TREE.flag, Exp.stringLoopVar(LoopVarPart.MAP_KEY));
+Exp filterOnKey =
+    Exp.regexCompare("10000.*", RegexFlag.NONE, Exp.stringLoopVar(LoopVarPart.MAP_KEY));
 
 
 // Operation
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, Exp.SELECT_MAP_KEY | Exp.SELECT_NO_FAIL,
+    CdtOperation.selectByPath(binName, SelectFlags.MAP_KEY | SelectFlags.NO_FAIL,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey),
         CTX.mapKey(Value.get("variants")),
@@ -382,7 +382,7 @@ Exp filterOnCheapInStock = Exp.and(
         Exp.val(50)));
 
 Record record = client.operate(null, key,
-    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE,
+    CdtOperation.selectByPath(binName, SelectFlags.MATCHING_TREE,
         CTX.allChildren(),                              // Navigate into all products
         CTX.allChildrenWithFilter(filterOnFeatured),    // Navigate deeper into the featured product structure
         CTX.mapKey(Value.get("variants")),              // Navigate to variants map/list
@@ -440,7 +440,7 @@ Expression incrementQuantity = Exp.build(
 );
 
 client.operate(null, key,
-    CdtOperation.modifyByPath(binName, Exp.SELECT_MATCHING_TREE, incrementQuantity,
+    CdtOperation.modifyByPath(binName, ModifyFlags.DEFAULT, incrementQuantity,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),
@@ -471,11 +471,11 @@ Now let's assume we add this item to the inventory bin (the demo does this autom
 }
 ```
 
-Because the dataset now includes `10000003` with `variants: "no variant"` (a string), any traversal that reaches variants and then tries to treat it like a Map/List will hit a type mismatch and error unless `Exp.SELECT_NO_FAIL` is set.
+Because the dataset now includes `10000003` with `variants: "no variant"` (a string), any traversal that reaches variants and then tries to treat it like a Map/List will hit a type mismatch and error unless `SelectFlags.NO_FAIL` is set.
 
 ```java
 Record noFailResponse = client.operate(null, key,
-    CdtOperation.selectByPath(binName, Exp.SELECT_MATCHING_TREE | Exp.SELECT_NO_FAIL,
+    CdtOperation.selectByPath(binName, SelectFlags.MATCHING_TREE | SelectFlags.NO_FAIL,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),
@@ -518,7 +518,7 @@ Same as the corresponding non-NO_FAIL query, minus any contribution from malform
 
 **Q: What kind of exception will I actually see on the client if I don’t use `NO_FAIL`? Is it recoverable or will the whole operation abort?**
 
-**A**: Without `Exp.SELECT_NO_FAIL`, if the server encounters a type mismatch (e.g., it expects a Map or List but finds a String), the entire path expression operation fails. The operation does not return partial results.
+**A**: Without `SelectFlags.NO_FAIL`, if the server encounters a type mismatch (e.g., it expects a Map or List but finds a String), the entire path expression operation fails. The operation does not return partial results.
 
 **Q: How do I return only certain pieces of data, like just the variant IDs?**
 
