@@ -1,0 +1,51 @@
+{
+  "10001": {
+    "rates": [
+      {
+        "Id": 1,
+        "a": 2,
+        "beta": 3.0,
+        "c": true,
+        "d": "data"
+      },
+      {
+        "Id": 2,
+        "a": 2,
+        "beta": 0.0,
+        "c": true,
+        "d": "data blob"
+      }
+    ],
+    "e": 4,
+    "isDeleted": false,
+    "time": 1795647328
+  },
+  "10002": {
+    "rates": [
+      {
+        "Id": 1,
+        "a": 2,
+        "beta": 3.0,
+        "c": true,
+        "d": "data blob"
+      }
+    ],
+    "e": 4,
+    "isDeleted": true,
+    "time": 1795647328
+  },
+  "10003": {
+    "rates": [
+      {
+        "Id": 1,
+        "a": 2,
+        "beta": 3.0,
+        "c": true,
+        "d": "data blob"
+      }
+    ],
+    "e": 4,
+    "isDeleted": false,
+    "time": 1764140184
+  }
+}
