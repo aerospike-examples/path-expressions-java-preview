@@ -95,7 +95,7 @@ public class BookstorePathExp {
             CTX.mapKey(Value.get("store")),
             CTX.mapKey(Value.get("book")),
             CTX.allChildren(),
-            CTX.mapKeysIn("author"));
+            CTX.mapKey(Value.get("author")));
 
         Record record = client.operate(null, key, op);
         return record.getValue("bookstore");
@@ -107,10 +107,8 @@ public class BookstorePathExp {
      * JSONPath: $.store.book[?(@.isbn)]
      */
     static Object runQ2(IAerospikeClient client, Key key) {
-        Exp hasIsbn = Exp.gt(
-            MapExp.getByKey(MapReturnType.COUNT, Exp.Type.INT,
-                Exp.val("isbn"), Exp.mapLoopVar(LoopVarPart.VALUE)),
-            Exp.val(0));
+        Exp hasIsbn = MapExp.getByKey(MapReturnType.EXISTS, Exp.Type.BOOL,
+            Exp.val("isbn"), Exp.mapLoopVar(LoopVarPart.VALUE));
 
         Operation op = CdtOperation.selectByPath("bookstore", SelectFlags.VALUE,
             CTX.mapKey(Value.get("store")),
