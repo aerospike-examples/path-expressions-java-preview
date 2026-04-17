@@ -27,6 +27,7 @@ import com.aerospike.client.exp.MapExp;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
+import com.aerospike.client.query.RegexFlag;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -162,7 +163,7 @@ public class PathExpressionsDemo {
      * Select products whose key starts with "10000".
      */
     static void runAdvanced1(IAerospikeClient client, Key key) throws Exception {
-        Exp filterOnKey = Exp.regexCompare("10000.*", 0,
+        Exp filterOnKey = Exp.regexCompare("10000.*", RegexFlag.NONE,
             Exp.stringLoopVar(LoopVarPart.MAP_KEY));
 
         Record record = client.operate(null, key,
