@@ -10,7 +10,7 @@ Java code examples for the [Path Expressions](https://docs.aerospike.com/develop
 | `catalog/` | E-commerce catalog: filtering, select flags, modification | [Quickstart](https://docs.aerospike.com/develop/expressions/path/quickstart/) and [Advanced usage](https://docs.aerospike.com/develop/expressions/path/advanced/) |
 | `booking/` | Booking data model: IN-list filtering with 8.1.2 CTX enhancements | [Performance](https://docs.aerospike.com/develop/expressions/path/performance/) |
 | `misc/` | Miscellaneous code examples for path expression use, such as chaining `mapKeysIn`/`andFilter` pairs and nesting experiments | [FAQ](https://docs.aerospike.com/develop/expressions/path/faq/) |
-| `ttl/` | Opportunistic expiry of nested map entries using `void_time` (epoch seconds) on read and write | — |
+| `pathexp-opportunistic-map-expiry/` | Opportunistic expiry of nested map entries using `void_time` (epoch seconds) on read and write | [Example README](pathexp-opportunistic-map-expiry/README.md) |
 
 Each folder is a self-contained Maven project.
 
@@ -36,7 +36,7 @@ Each folder is a self-contained Maven project.
    mvn compile exec:java
    ```
 
-   Replace `catalog` with `bookstore`, `booking`, or `ttl` to run their example.
+   Replace `catalog` with `bookstore`, `booking`, or `pathexp-opportunistic-map-expiry` to run their example.
 
    The `misc/` folder contains multiple examples. By default `mvn compile exec:java`
    runs `NestingExamplesTest`. To run a different class, pass `-Dmain=ClassName`:
